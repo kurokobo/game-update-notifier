@@ -1,0 +1,7 @@
+wheel==0.36.2
+python-dotenv==0.17.0
+gevent==21.1.2
+gevent-eventemitter==2.1
+steam==1.2.0
+discord-webhook==0.13.0
+google-api-python-client==2.1.0

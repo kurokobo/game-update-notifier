@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  notifier:
+    image: ghcr.io/kurokobo/steam-update-notifier:${STEAM_UPDATE_NOTIFIER_TAG:?err}
+    restart: always
+    environment:
+      - APP_ID=${APP_ID:?err}
+      - WATCHED_BRANCH=${WATCHED_BRANCH:?err}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:?err}
+      - DISCORD_USER_ID=${DISCORD_USER_ID:?err}
+      - IGNORE_FIRST_NOTIFICATION=${IGNORE_FIRST_NOTIFICATION:?err}
+      - CHECK_INTERVAL_SEC=${CHECK_INTERVAL_SEC:?err}
