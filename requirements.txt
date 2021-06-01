@@ -1,7 +1,15 @@
 wheel==0.36.2
 python-dotenv==0.17.0
+
+steam==1.2.0
 gevent==21.1.2
 gevent-eventemitter==2.1
-steam==1.2.0
-discord-webhook==0.13.0
 google-api-python-client==2.1.0
+
+ms_cv==0.1.1
+
+discord-webhook==0.13.0
+
+legendary-gl==0.20.6
+
+tabulate==0.8.9

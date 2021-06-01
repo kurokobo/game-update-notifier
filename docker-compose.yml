@@ -2,12 +2,31 @@ version: "3"
 
 services:
   notifier:
-    image: ghcr.io/kurokobo/steam-update-notifier:${STEAM_UPDATE_NOTIFIER_TAG:?err}
+    image: ghcr.io/kurokobo/game-update-notifier:${GAME_UPDATE_NOTIFIER_TAG:?err}
+    # build: .
+
     restart: always
     environment:
-      - APP_ID=${APP_ID:?err}
-      - WATCHED_BRANCH=${WATCHED_BRANCH:?err}
-      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:?err}
-      - DISCORD_USER_ID=${DISCORD_USER_ID:?err}
-      - IGNORE_FIRST_NOTIFICATION=${IGNORE_FIRST_NOTIFICATION:?err}
-      - CHECK_INTERVAL_SEC=${CHECK_INTERVAL_SEC:?err}
+      - WATCH_STEAM=${WATCH_STEAM}
+      - STEAM_APP_IDS=${STEAM_APP_IDS}
+
+      - WATCH_MSSTORE=${WATCH_MSSTORE}
+      - MSSTORE_APP_IDS=${MSSTORE_APP_IDS}
+      - MSSTORE_MARKET=${MSSTORE_MARKET}
+
+      - WATCH_EPICGAMES=${WATCH_EPICGAMES}
+      - EPICGAMES_APP_IDS=${EPICGAMES_APP_IDS}
+
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - DISCORD_MENTION_ROLE_IDS=${DISCORD_MENTION_ROLE_IDS}
+      - DISCORD_MENTION_USER_IDS=${DISCORD_MENTION_USER_IDS}
+
+      - IGNORE_FIRST_NOTIFICATION=${IGNORE_FIRST_NOTIFICATION}
+      - CHECK_INTERVAL_SEC=${CHECK_INTERVAL_SEC}
+    volumes:
+      - "notifier-cache:/app/cache"
+      - "notifier-config:/app/.config"
+
+volumes:
+  notifier-cache:
+  notifier-config:

@@ -1,32 +1,19 @@
 import logging
 import os
 import time
+from datetime import datetime
 from os.path import dirname, join
 
 from dotenv import load_dotenv
-from gevent import monkey
 
-monkey.patch_all()
+from modules.steam import Steam
+from modules.msstore import MSStore
+from modules.epicgames import EpicGames
+from modules.discord import Discord
 
-from modules import notifier, witness  # noqa: E402
-
-# dotenv
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
-# Load environment variables
-APP_ID = int(os.getenv("APP_ID"))
-WATCHED_BRANCH = os.getenv("WATCHED_BRANCH")
-
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
-DISCORD_USER_ID = os.getenv("DISCORD_USER_ID")
-
-IGNORE_FIRST_NOTIFICATION = os.getenv("IGNORE_FIRST_NOTIFICATION").lower() == "true"
-CHECK_INTERVAL_SEC = int(os.getenv("CHECK_INTERVAL_SEC"))
-PRODUCT_INFO_CACHE = "./cache/product_info.json"
-UPDATED_TIME_CACHE = "./cache/updated_time.txt"
-
-# Logger
 log_format = "%(asctime)s %(filename)s:%(name)s:%(lineno)d [%(levelname)s] %(message)s"
 logging.basicConfig(
     level=logging.INFO,
@@ -35,58 +22,108 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def one_shot():
-    logger.info("Log in to Steam")
-    is_logged_in = witness.Login()
-    if not is_logged_in:
-        logger.error("Failed to log in to Steam")
-        return False
-
-    logger.info("Check if updated")
-    is_updated = witness.Watch(
-        APP_ID,
-        PRODUCT_INFO_CACHE,
-        UPDATED_TIME_CACHE,
-        WATCHED_BRANCH,
-        IGNORE_FIRST_NOTIFICATION,
-    )
-    logger.info("Result: {}".format(is_updated))
-
-    if is_updated is not None and is_updated["updated"]:
-        logger.info("Fire notification")
-        notifier.Fire(
-            DISCORD_WEBHOOK_URL,
-            DISCORD_USER_ID,
-            is_updated["app_name"],
-            is_updated["app_id"],
-            is_updated["branch"],
-            is_updated["timeupdated"]["str"],
-        )
-    return True
-
-
 def main():
-    try:
-        while True:
-            logger.info("Loop start")
-            result = one_shot()
-            if result:
-                logger.info(
-                    "Loop successfully completed. Will sleep {} seconds".format(
-                        CHECK_INTERVAL_SEC
-                    )
-                )
-            else:
-                logger.info(
-                    "Loop failed. Will sleep {} seconds and retry".format(
-                        CHECK_INTERVAL_SEC
-                    )
-                )
-            time.sleep(CHECK_INTERVAL_SEC)
-    except Exception as e:
-        logger.error(e)
-    finally:
-        witness.Logout()
+
+    IGNORE_FIRST_NOTIFICATION = os.getenv("IGNORE_FIRST_NOTIFICATION").lower() == "true"
+    CHECK_INTERVAL_SEC = int(os.getenv("CHECK_INTERVAL_SEC"))
+
+    WATCH_STEAM = os.getenv("WATCH_STEAM").lower() == "true"
+    STEAM_APP_IDS = [
+        x.strip()
+        for x in os.getenv("STEAM_APP_IDS").strip('"').strip("'").split(",")
+        if not os.getenv("STEAM_APP_IDS") == ""
+    ]
+
+    WATCH_MSSTORE = os.getenv("WATCH_MSSTORE").lower() == "true"
+    MSSTORE_APP_IDS = [
+        x.strip()
+        for x in os.getenv("MSSTORE_APP_IDS").strip('"').strip("'").split(",")
+        if not os.getenv("MSSTORE_APP_IDS") == ""
+    ]
+    MSSTORE_MARKET = os.getenv("MSSTORE_MARKET")
+
+    WATCH_EPICGAMES = os.getenv("WATCH_EPICGAMES").lower() == "true"
+    EPICGAMES_APP_IDS = [
+        x.strip()
+        for x in os.getenv("EPICGAMES_APP_IDS").strip('"').strip("'").split(",")
+        if not os.getenv("EPICGAMES_APP_IDS") == ""
+    ]
+
+    DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+    DISCORD_MENTION_ROLE_IDS = [
+        x.strip()
+        for x in os.getenv("DISCORD_MENTION_ROLE_IDS").strip('"').strip("'").split(",")
+        if not os.getenv("DISCORD_MENTION_ROLE_IDS") == ""
+    ]
+    DISCORD_MENTION_USER_IDS = [
+        x.strip()
+        for x in os.getenv("DISCORD_MENTION_USER_IDS").strip('"').strip("'").split(",")
+        if not os.getenv("DISCORD_MENTION_USER_IDS") == ""
+    ]
+
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(current_path)
+
+    if WATCH_STEAM:
+        steam_notifier = Discord(
+            webhook_url=DISCORD_WEBHOOK_URL,
+            role_ids=DISCORD_MENTION_ROLE_IDS,
+            user_ids=DISCORD_MENTION_USER_IDS,
+            platform="Steam",
+            thumb_url=(
+                "https://github.com/kurokobo/game-update-notifier/raw/main/"
+                "assets/steam.png"
+            ),
+            embed_color="1e90ff",
+        )
+        steam = Steam(STEAM_APP_IDS, steam_notifier, IGNORE_FIRST_NOTIFICATION)
+
+    if WATCH_MSSTORE:
+        msstore_notifier = Discord(
+            webhook_url=DISCORD_WEBHOOK_URL,
+            role_ids=DISCORD_MENTION_ROLE_IDS,
+            user_ids=DISCORD_MENTION_USER_IDS,
+            platform="Microsoft Store",
+            thumb_url=(
+                "https://github.com/kurokobo/game-update-notifier/raw/main/"
+                "assets/msstore.png"
+            ),
+            embed_color="e6e6fa",
+        )
+        msstore = MSStore(
+            MSSTORE_APP_IDS, msstore_notifier, IGNORE_FIRST_NOTIFICATION, MSSTORE_MARKET
+        )
+
+    if WATCH_EPICGAMES:
+        epicgames_notifier = Discord(
+            webhook_url=DISCORD_WEBHOOK_URL,
+            role_ids=DISCORD_MENTION_ROLE_IDS,
+            user_ids=DISCORD_MENTION_USER_IDS,
+            platform="Epic Games",
+            thumb_url=(
+                "https://github.com/kurokobo/game-update-notifier/raw/main/"
+                "assets/epicgames.png"
+            ),
+            embed_color="11cf59",
+        )
+        epicgames = EpicGames(
+            EPICGAMES_APP_IDS, epicgames_notifier, IGNORE_FIRST_NOTIFICATION
+        )
+
+    while True:
+        logger.info("Loop start: {}".format(datetime.now()))
+
+        if WATCH_STEAM:
+            steam.check_update()
+
+        if WATCH_MSSTORE:
+            msstore.check_update()
+
+        if WATCH_EPICGAMES:
+            epicgames.check_update()
+
+        logger.info("Will sleep {} seconds".format(CHECK_INTERVAL_SEC))
+        time.sleep(CHECK_INTERVAL_SEC)
 
 
 if __name__ == "__main__":

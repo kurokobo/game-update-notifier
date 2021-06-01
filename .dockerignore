@@ -1,5 +1,8 @@
 .git
+.github
 .venv
+
+cache
 modules/__pycache__
-cache/*
+
 .env
