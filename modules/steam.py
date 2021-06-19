@@ -1,3 +1,4 @@
+import copy
 import logging
 from datetime import datetime
 
@@ -7,8 +8,8 @@ from steam.enums import EResult
 
 monkey.patch_all()
 
-from modules.models import Cache, Result, App  # noqa: E402
 from modules import utils  # noqa: E402
+from modules.models import App, Cache, Result  # noqa: E402
 
 
 class SteamAppFilter:
@@ -21,8 +22,8 @@ class Steam:
     def __init__(self, app_ids, notifier, ignore_first):
         self.logger = logging.getLogger(__name__)
         self.client = SteamClient()
-        self.old_result = None
-        self.new_result = None
+        self.old_result = {}
+        self.new_result = {}
         self.timestamp = None
 
         self.apps = []
@@ -75,8 +76,7 @@ class Steam:
         self.logger.info("Cache raw data as {}".format(self.cache.tmp_data))
         utils.save_dict_as_json(_product_info, self.cache.tmp_data)
 
-        self.old_result = self.new_result
-        self.new_result = {}
+        self.old_result = copy.copy(self.new_result)
         for _app in self.apps:
             self.logger.info(
                 "Gather updated data from raw data for {} in branch: {}".format(
@@ -110,7 +110,7 @@ class Steam:
 
         for _app in self.apps:
             if (
-                self.old_result is None
+                self.old_result is {}
                 or _app.id not in self.old_result
                 or self.old_result[_app.id].data != self.new_result[_app.id].data
             ):

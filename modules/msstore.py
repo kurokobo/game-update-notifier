@@ -1,12 +1,13 @@
+import copy
 import logging
-from datetime import datetime
-import requests
 import re
+from datetime import datetime
 
 import ms_cv
+import requests
 
-from modules.models import Cache, Result, App
 from modules import utils
+from modules.models import App, Cache, Result
 
 
 class MSStoreFilter:
@@ -18,8 +19,8 @@ class MSStoreFilter:
 class MSStore:
     def __init__(self, app_ids, notifier, ignore_first, market):
         self.logger = logging.getLogger(__name__)
-        self.old_result = None
-        self.new_result = None
+        self.old_result = {}
+        self.new_result = {}
         self.timestamp = None
 
         self.apps = []
@@ -63,8 +64,7 @@ class MSStore:
         self.logger.info("Cache raw data as {}".format(self.cache.tmp_data))
         utils.save_dict_as_json(_product_info, self.cache.tmp_data)
 
-        self.old_result = self.new_result
-        self.new_result = {}
+        self.old_result = copy.copy(self.new_result)
         for _app in self.apps:
             self.logger.info(
                 "Gather updated data from raw data for {} for: {}".format(
@@ -121,9 +121,10 @@ class MSStore:
         _is_updated = False
         _updated_apps = []
 
+        print(self.old_result)
         for _app in self.apps:
             if (
-                self.old_result is None
+                self.old_result is {}
                 or _app.id not in self.old_result
                 or self.old_result[_app.id].data != self.new_result[_app.id].data
             ):

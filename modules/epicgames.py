@@ -1,18 +1,19 @@
+import copy
 import logging
 from datetime import datetime
 
 from legendary.cli import LegendaryCLI
 
-from modules.models import Cache, Result, App
 from modules import utils
+from modules.models import App, Cache, Result
 
 
 class EpicGames:
     def __init__(self, app_ids, notifier, ignore_first):
         self.logger = logging.getLogger(__name__)
         self.client = LegendaryCLI()
-        self.old_result = None
-        self.new_result = None
+        self.old_result = {}
+        self.new_result = {}
         self.timestamp = None
 
         self.apps = app_ids
@@ -40,10 +41,9 @@ class EpicGames:
         self.logger.info("Cache raw data as {}".format(self.cache.tmp_data))
         utils.save_dict_as_json(_product_info, self.cache.tmp_data)
 
-        self.old_result = self.new_result
-        self.new_result = {}
+        self.old_result = copy.copy(self.new_result)
         for _app in self.apps:
-            self.logger.info("Gather updated data from raw data")
+            self.logger.info("Gather updated data from raw data for: {}".format(_app))
 
             _last_updated = None
             if self.old_result and _app in self.old_result:
@@ -69,7 +69,7 @@ class EpicGames:
 
         for _app in self.apps:
             if (
-                self.old_result is None
+                self.old_result is {}
                 or _app not in self.old_result
                 or self.old_result[_app].data != self.new_result[_app].data
             ):

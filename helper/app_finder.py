@@ -5,11 +5,11 @@ from gevent import monkey
 
 monkey.patch_all()
 
-import requests  # noqa: E402
 import ms_cv  # noqa: E402
-from tabulate import tabulate  # noqa: E402
-from steam.client import SteamClient  # noqa: E402
+import requests  # noqa: E402
 from legendary.cli import LegendaryCLI  # noqa: E402
+from steam.client import SteamClient  # noqa: E402
+from tabulate import tabulate  # noqa: E402
 
 
 def gather_steam(id):
