@@ -7,9 +7,9 @@ from os.path import dirname, join
 from dotenv import load_dotenv
 
 from modules.steam import Steam
-from modules.msstore import MSStore
-from modules.epicgames import EpicGames
 from modules.discord import Discord
+from modules.epicgames import EpicGames
+from modules.msstore import MSStore
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
