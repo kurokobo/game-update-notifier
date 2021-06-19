@@ -18,6 +18,7 @@ This bot tracks actual package updates, instead of updates of any news feeds lik
   - [Installation](#installation)
     - [Requirements](#requirements)
     - [Prepare your Discord](#prepare-your-discord)
+    - [Prepare Game Update Notifier](#prepare-game-update-notifier)
     - [Prepare Application IDs to track](#prepare-application-ids-to-track)
       - [Steam](#steam)
       - [Epic Games](#epic-games)
@@ -55,6 +56,10 @@ This bot tracks actual package updates, instead of updates of any news feeds lik
 1. Get **Webhook URL** for the Channel in your Guild that the notification message to be posted.
 2. (If required) Get **User IDs** to be mentioned in the notification message.
 3. (If required) Get **Role IDs** to be mentioned in the notification message.
+
+### Prepare Game Update Notifier
+
+CLone this repository or download `docker-compose.yml` and `sample.env`, then rename `sample.env` as `.env`.
 
 ### Prepare Application IDs to track
 
