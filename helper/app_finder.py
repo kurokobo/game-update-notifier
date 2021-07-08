@@ -1,5 +1,4 @@
 import argparse
-import re
 
 from gevent import monkey
 
@@ -53,7 +52,7 @@ def gather_msstore(id, market):
     }
     _product_info = requests.get(url=_endpoint, headers=_headers, params=_params).json()
 
-    _header = ["KEY", "App Id", "Market", "Name", "Platform", "Package Name"]
+    _header = ["KEY", "App Id", "Market", "Name", "Platform", "Package Id"]
     _table = []
     for _package in _product_info["Products"][0]["DisplaySkuAvailabilities"][0]["Sku"][
         "Properties"
@@ -62,21 +61,14 @@ def gather_msstore(id, market):
             "LocalizedProperties"
         ][0]["SkuTitle"]
         _platform_dependencies = _package["PlatformDependencies"][0]["PlatformName"]
-        _package_fullname = ""
-        if _package["PackageFullName"]:
-            _package_fullname = _package["PackageFullName"]
-        elif _package["PackageDownloadUris"]:
-            _package_fullname = re.sub(
-                "^.*/", "", _package["PackageDownloadUris"][0]["Uri"]
-            )
-
+        _package_id = _package["PackageId"]
         _row = [
             "{}:{}".format(id, _platform_dependencies),
             id,
             market,
             _name,
             _platform_dependencies,
-            _package_fullname,
+            _package_id,
         ]
         _table.append(_row)
 
