@@ -1,6 +1,5 @@
 import copy
 import logging
-import re
 from datetime import datetime
 
 import ms_cv
@@ -82,22 +81,15 @@ class MSStore:
                 "LocalizedProperties"
             ][0]["SkuTitle"]
 
-            _package_fullname = []
+            _package_ids = []
 
             for _package in _current_product["DisplaySkuAvailabilities"][0]["Sku"][
                 "Properties"
             ]["Packages"]:
                 if _package["PlatformDependencies"][0]["PlatformName"] == _app.filter:
-                    _fullname = ""
-                    if _package["PackageFullName"]:
-                        _fullname = _package["PackageFullName"]
-                    elif _package["PackageDownloadUris"]:
-                        _fullname = re.sub(
-                            "^.*/", "", _package["PackageDownloadUris"][0]["Uri"]
-                        )
-                    _package_fullname.append(_fullname)
+                    _package_ids.append(_package["PackageId"])
 
-            _package_fullname.sort()
+            _package_ids.sort()
 
             _last_updated = None
             if self.old_result and _app.id in self.old_result:
@@ -108,7 +100,7 @@ class MSStore:
                     id=_app.id,
                     name=_name,
                 ),
-                data=",".join(_package_fullname),
+                data=",".join(_package_ids),
                 last_checked=self.timestamp,
                 last_updated=_last_updated,
             )

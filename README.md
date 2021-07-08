@@ -129,14 +129,14 @@ Get **Platform Name** of the product to track. You can use the helper script in 
 
 ```bash
 $ docker-compose run --rm notifier helper/app_finder.py -p msstore -m JP -i 9nblggh2jhxj
-KEY                             App Id        Market    Name                      Platform           Package Name
-------------------------------  ------------  --------  ------------------------  -----------------  -------------------------------------------------------
-9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       Microsoft.MinecraftUWP_1.16.22101.70_x86__8wekyb3d8bbwe
-9nblggh2jhxj:Windows.Universal  9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Universal  Microsoft.MinecraftUWP_1.16.22101.0_x86__8wekyb3d8bbwe
-9nblggh2jhxj:Windows.Universal  9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Universal  Microsoft.MinecraftUWP_1.16.22101.0_arm__8wekyb3d8bbwe
-9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       Microsoft.MinecraftUWP_1.16.22101.70_arm__8wekyb3d8bbwe
-9nblggh2jhxj:Windows.Universal  9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Universal  Microsoft.MinecraftUWP_1.16.22101.0_x64__8wekyb3d8bbwe
-9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       Microsoft.MinecraftUWP_1.16.22101.70_x64__8wekyb3d8bbwe
+KEY                             App Id        Market    Name                      Platform           Package Id
+------------------------------  ------------  --------  ------------------------  -----------------  ----------------------------------------
+9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       845277e2-565d-741e-3c91-a883a873d4be-Arm
+9nblggh2jhxj:Windows.Universal  9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Universal  6c489be8-f48d-a78b-a405-44633558c5f7-Arm
+9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       426ccf1b-9364-fc9a-3a9d-f24ab7b493a6-X86
+9nblggh2jhxj:Windows.Universal  9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Universal  7ac62c84-44fc-8c53-3f64-549fcbe9c471-X86
+9nblggh2jhxj:Windows.Universal  9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Universal  78c121c0-7dc6-29ca-7a71-3298afb37686-X64
+9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       b0d37c82-091c-c4c5-e702-d7e12aff541d-X64
 ```
 
 Keep the value of the `KEY` column (`<App Id>:<Platform>`) of the row of the platform you want to track. This value can be used to prepare `.env` file in later steps.
