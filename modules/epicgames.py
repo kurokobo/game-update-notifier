@@ -11,7 +11,7 @@ from modules.models import App, Cache, Result
 class EpicGames:
     def __init__(self, app_ids, notifier, ignore_first):
         self.logger = logging.getLogger(__name__)
-        self.client = LegendaryCLI()
+        self.client = LegendaryCLI(api_timeout=10.0)
         self.old_result = {}
         self.new_result = {}
         self.timestamp = None
@@ -54,7 +54,7 @@ class EpicGames:
                     id=_app,
                     name=_product_info["apps"][_app]["app_title"],
                 ),
-                data=_product_info["apps"][_app]["asset_info"]["build_version"],
+                data=_product_info["apps"][_app]["asset_infos"]["Windows"]["build_version"],
                 last_checked=self.timestamp,
                 last_updated=_last_updated,
             )
