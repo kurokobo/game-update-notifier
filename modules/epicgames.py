@@ -11,7 +11,7 @@ from modules.models import App, Cache, Result
 class EpicGames:
     def __init__(self, app_ids, notifier, ignore_first):
         self.logger = logging.getLogger(__name__)
-        self.client = LegendaryCLI()
+        self.client = LegendaryCLI(api_timeout=10.0)
         self.old_result = {}
         self.new_result = {}
         self.timestamp = None

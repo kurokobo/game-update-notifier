@@ -2,7 +2,7 @@ from legendary.cli import LegendaryCLI
 
 
 def main():
-    _client = LegendaryCLI()
+    _client = LegendaryCLI(api_timeout=10.0)
     _args = {
         "import_egs_auth": None,
         "auth_code": None,
