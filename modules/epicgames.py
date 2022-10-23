@@ -54,7 +54,7 @@ class EpicGames:
                     id=_app,
                     name=_product_info["apps"][_app]["app_title"],
                 ),
-                data=_product_info["apps"][_app]["asset_info"]["build_version"],
+                data=_product_info["apps"][_app]["asset_infos"]["Windows"]["build_version"],
                 last_checked=self.timestamp,
                 last_updated=_last_updated,
             )
