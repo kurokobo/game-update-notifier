@@ -76,7 +76,7 @@ def gather_msstore(id, market):
 
 
 def gather_epicgames():
-    _client = LegendaryCLI()
+    _client = LegendaryCLI(api_timeout=10.0)
     _client.core.login()
     _product_infos, _ = _client.core.get_game_and_dlc_list()
 
@@ -86,7 +86,7 @@ def gather_epicgames():
         _data = vars(_product_info)
         _id = _data["app_name"]
         _name = _data["app_title"]
-        _version = _data["asset_info"]["build_version"]
+        _version = _data["asset_infos"]["Windows"]["build_version"]
 
         _row = [_id, _id, _name, _version]
         _table.append(_row)
