@@ -25,9 +25,9 @@ def gather_steam(id):
     _table = []
     for _branch in _product_info["apps"][_id]["depots"]["branches"]:
         _name = _product_info["apps"][_id]["common"]["name"]
-        _updated_time = _product_info["apps"][_id]["depots"]["branches"][_branch][
-            "timeupdated"
-        ]
+        _updated_time = -1
+        if "timeupdated" in _product_info["apps"][_id]["depots"]["branches"][_branch]:
+            _updated_time = _product_info["apps"][_id]["depots"]["branches"][_branch]["timeupdated"]
         _row = [
             "{}:{}".format(_id, _branch),
             _id,
