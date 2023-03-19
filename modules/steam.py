@@ -22,19 +22,7 @@ class Steam:
     def __init__(self, app_ids, notifier, ignore_first):
         self.logger = logging.getLogger(__name__)
         self.client = SteamClient()
-        self.old_result = {}
-        self.new_result = {}
         self.timestamp = None
-
-        self.apps = []
-        for _app_id in app_ids:
-            _app = _app_id.split(":")
-            if len(_app) == 1:
-                self.apps.append(SteamAppFilter(id=_app[0]))
-            else:
-                self.apps.append(SteamAppFilter(id=_app[0], filter=_app[1]))
-        self.notifier = notifier
-        self.ignore_first = ignore_first
 
         utils.create_directory("./cache/steam")
         self.cache = Cache(
@@ -43,6 +31,38 @@ class Steam:
             "./cache/steam/tmp_data.json",
             "./cache/steam/latest_result.json",
         )
+
+        self.old_result = {}
+        self.new_result = utils.load_json_as_dict(self.cache.result)
+
+        self.ignore_first = ignore_first
+
+        self.apps = []
+
+        for _app_id in app_ids:
+            _app = _app_id.split(":")
+            new_filter = SteamAppFilter(id=_app[0])
+            if len(_app) != 1:
+                new_filter = SteamAppFilter(id=_app[0], filter=_app[1])
+            self.apps.append(new_filter)
+
+            _app_id = new_filter.id + ":" + new_filter.filter
+            if _app_id in self.new_result:
+                # de-JSON
+                self.new_result[_app_id] = Result(
+                        app=App(
+                            id=_app_id,
+                            name=self.new_result[_app_id]["app"]["name"],
+                        ),
+                        data=self.new_result[_app_id]["data"],
+                        last_checked=self.new_result[_app_id]["last_checked"],
+                        last_updated=self.new_result[_app_id]["last_updated"],
+                    )
+
+                # disable ignore_first because we're loading from a cached state
+                self.ignore_first = False
+        self.old_result = copy.copy(self.new_result)
+        self.notifier = notifier
 
     def login(self):
         self.logger.info("Log in to Steam")
