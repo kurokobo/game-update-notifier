@@ -87,10 +87,10 @@ class Steam:
             _last_updated = None
             if self.old_result and _app.id in self.old_result:
                 _last_updated = self.old_result[_app.id].last_updated
-
-            self.new_result[_app.id] = Result(
+            key = _app.id + ":" + _app.filter
+            self.new_result[key] = Result(
                 app=App(
-                    id=_app.id,
+                    id=key,
                     name=_product_info["apps"][int(_app.id)]["common"]["name"],
                 ),
                 data=_product_info["apps"][int(_app.id)]["depots"]["branches"][
@@ -109,19 +109,21 @@ class Steam:
         _updated_apps = []
 
         for _app in self.apps:
+            key = _app.id + ":" + _app.filter
             if (
                 self.old_result is {}
-                or _app.id not in self.old_result
-                or self.old_result[_app.id].data != self.new_result[_app.id].data
+                or key not in self.old_result
+                or self.old_result[key].data != self.new_result[key].data
             ):
                 self.logger.info(
-                    "Update detected for: {}".format(self.new_result[_app.id].app.name)
+                    "Update detected for: {} ({})".format(self.new_result[key].app.name, _app.filter)
                 )
-                self.logger.info("New data: {}".format(self.new_result[_app.id].data))
-                _is_updated = True
-                _updated_apps.append(self.new_result[_app.id].app)
 
-                self.new_result[_app.id].last_updated = self.timestamp
+                self.logger.info("New data: {}".format(self.new_result[key].data))
+                _is_updated = True
+                _updated_apps.append(self.new_result[key].app)
+
+                self.new_result[key].last_updated = self.timestamp
                 utils.replace_file(self.cache.latest_data, self.cache.old_data)
 
         self.logger.info("Cache filtered data as {}".format(self.cache.result))
