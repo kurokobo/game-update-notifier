@@ -92,7 +92,7 @@ class GOG:
                     # get update info
                     _response = requests.get("https://content-system.gog.com/products/"
                         + str(a.id)
-                        + "/os/windows/builds?generation=2", headers={'User-Agent': "plz dont ban me 1.0"})
+                        + "/os/windows/builds?generation=2")
                     if _response.status_code != 200:
                         self.logger.error("GOG content-system request for " + str(a.id) 
                             + " returned status code " + str(_response.status_code) + " " + _response.url)
