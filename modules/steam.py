@@ -98,6 +98,7 @@ class Steam:
 
         self.old_result = copy.copy(self.new_result)
         for _app in self.apps:
+            key = _app.id + ":" + _app.filter
             self.logger.info(
                 "Gather updated data from raw data for {} in branch: {}".format(
                     _app.id, _app.filter
@@ -105,8 +106,8 @@ class Steam:
             )
 
             _last_updated = None
-            if self.old_result and _app.id in self.old_result:
-                _last_updated = self.old_result[_app.id].last_updated
+            if self.old_result and key in self.old_result:
+                _last_updated = self.old_result[key].last_updated
             key = _app.id + ":" + _app.filter
             self.new_result[key] = Result(
                 app=App(
