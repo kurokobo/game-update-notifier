@@ -31,6 +31,7 @@ def main():
     json_epicgames = "../cache/epicgames/latest_result.json"
     json_msstore = "../cache/msstore/latest_result.json"
     json_steam = "../cache/steam/latest_result.json"
+    json_gog = "../cache/gog/latest_result.json"
 
     current_path = os.path.dirname(os.path.abspath(__file__))
     os.chdir(current_path)
@@ -41,6 +42,7 @@ def main():
     _table = append_cache(_table, "Epic Games", json_epicgames)
     _table = append_cache(_table, "Microsoft Store", json_msstore)
     _table = append_cache(_table, "Steam", json_steam)
+    _table = append_cache(_table, "GOG", json_gog)
 
     print(tabulate(_table, _header))
 
