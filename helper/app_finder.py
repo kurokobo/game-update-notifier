@@ -93,6 +93,49 @@ def gather_epicgames():
 
     print(tabulate(_table, _header))
 
+def gather_gog_id(id):
+    # get name
+    _response = requests.get("https://api.gog.com/products/" + str(id))
+    _response.close()
+    _name = _response.json()["title"]
+
+    # get branch info
+    _response = requests.get("https://content-system.gog.com/products/"
+        + str(id)
+        + "/os/windows/builds?generation=2")
+    _response.close()
+    _product_info = _response.json()
+
+    _header = ["KEY", "App Id", "Name", "Branch"]
+    _table = []
+    _branches = []
+    for _product in _product_info["items"]:
+        _branch = _product["branch"]
+        _branch_str = ("null" if  _branch is None else "\"" + _branch + "\"")
+        if not _product["branch"] in _branches:
+            _key = str(id) + ":" + _branch_str
+            _table.append([_key, id, _name, _branch_str])
+            _branches.append(_product["branch"])
+
+    return (_table, _header)
+
+def gather_gog_name(name):
+    _endpoint = "https://embed.gog.com/games/ajax/filtered"
+    _params = {
+        "search": name
+    }
+    _response = requests.get(url=_endpoint, params=_params)
+    _response.close()
+    _search_matches = _response.json()
+
+    _table = []
+    _keys = []
+    for _product in _search_matches["products"]:
+        (_id_table, _keys) = gather_gog_id(_product["id"])
+        _table += _id_table
+    print(tabulate(_table, _keys))
+
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -100,10 +143,10 @@ def main():
         "-p",
         "--platform",
         type=str,
-        choices=["steam", "epicgames", "msstore"],
+        choices=["steam", "epicgames", "msstore", "gog"],
         help=(
             "specify the name of the platform that you want to gather. "
-            "choices: steam, epicgames, msstore"
+            "choices: steam, epicgames, msstore, gog"
         ),
     )
     parser.add_argument(
@@ -117,7 +160,13 @@ def main():
         "-i",
         "--id",
         type=str,
-        help="specify the id of the game. required for steam or msstore",
+        help="specify the id of the game. required for steam or msstore, optional for gog",
+    )
+    parser.add_argument(
+        "-n",
+        "--name",
+        type=str,
+        help="specify the searched name of the game. only used for gog",
     )
     args = parser.parse_args()
 
@@ -130,6 +179,10 @@ def main():
     if args.platform == "epicgames":
         gather_epicgames()
 
+    if args.platform == "gog" and args.id is not None:
+        print(tabulate(*gather_gog_id(args.id)))
+    elif args.platform == "gog" and args.name is not None:
+        gather_gog_name(args.name)
 
 if __name__ == "__main__":
     main()
