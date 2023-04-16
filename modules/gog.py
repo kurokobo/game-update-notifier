@@ -89,7 +89,7 @@ class GOG:
                     _response.close()
                     _game_name = _response.json()["title"]
 
-                    # get update info
+                    # get branch info
                     _response = requests.get("https://content-system.gog.com/products/"
                         + str(a.id)
                         + "/os/windows/builds?generation=2")
