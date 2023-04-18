@@ -22,19 +22,7 @@ class Steam:
     def __init__(self, app_ids, notifier, ignore_first):
         self.logger = logging.getLogger(__name__)
         self.client = SteamClient()
-        self.old_result = {}
-        self.new_result = {}
         self.timestamp = None
-
-        self.apps = []
-        for _app_id in app_ids:
-            _app = _app_id.split(":")
-            if len(_app) == 1:
-                self.apps.append(SteamAppFilter(id=_app[0]))
-            else:
-                self.apps.append(SteamAppFilter(id=_app[0], filter=_app[1]))
-        self.notifier = notifier
-        self.ignore_first = ignore_first
 
         utils.create_directory("./cache/steam")
         self.cache = Cache(
@@ -43,6 +31,38 @@ class Steam:
             "./cache/steam/tmp_data.json",
             "./cache/steam/latest_result.json",
         )
+
+        self.old_result = {}
+        self.new_result = utils.load_json_as_dict(self.cache.result)
+
+        self.ignore_first = ignore_first
+
+        self.apps = []
+
+        for _app_id in app_ids:
+            _app = _app_id.split(":")
+            new_filter = SteamAppFilter(id=_app[0])
+            if len(_app) != 1:
+                new_filter = SteamAppFilter(id=_app[0], filter=_app[1])
+            self.apps.append(new_filter)
+
+            _app_id = new_filter.id + ":" + new_filter.filter
+            if _app_id in self.new_result:
+                # de-JSON
+                self.new_result[_app_id] = Result(
+                        app=App(
+                            id=_app_id,
+                            name=self.new_result[_app_id]["app"]["name"],
+                        ),
+                        data=self.new_result[_app_id]["data"],
+                        last_checked=self.new_result[_app_id]["last_checked"],
+                        last_updated=self.new_result[_app_id]["last_updated"],
+                    )
+
+                # disable ignore_first because we're loading from a cached state
+                self.ignore_first = False
+        self.old_result = copy.copy(self.new_result)
+        self.notifier = notifier
 
     def login(self):
         self.logger.info("Log in to Steam")
@@ -78,6 +98,7 @@ class Steam:
 
         self.old_result = copy.copy(self.new_result)
         for _app in self.apps:
+            key = _app.id + ":" + _app.filter
             self.logger.info(
                 "Gather updated data from raw data for {} in branch: {}".format(
                     _app.id, _app.filter
@@ -85,12 +106,12 @@ class Steam:
             )
 
             _last_updated = None
-            if self.old_result and _app.id in self.old_result:
-                _last_updated = self.old_result[_app.id].last_updated
-
-            self.new_result[_app.id] = Result(
+            if self.old_result and key in self.old_result:
+                _last_updated = self.old_result[key].last_updated
+            key = _app.id + ":" + _app.filter
+            self.new_result[key] = Result(
                 app=App(
-                    id=_app.id,
+                    id=key,
                     name=_product_info["apps"][int(_app.id)]["common"]["name"],
                 ),
                 data=_product_info["apps"][int(_app.id)]["depots"]["branches"][
@@ -109,19 +130,21 @@ class Steam:
         _updated_apps = []
 
         for _app in self.apps:
+            key = _app.id + ":" + _app.filter
             if (
                 self.old_result is {}
-                or _app.id not in self.old_result
-                or self.old_result[_app.id].data != self.new_result[_app.id].data
+                or key not in self.old_result
+                or self.old_result[key].data != self.new_result[key].data
             ):
                 self.logger.info(
-                    "Update detected for: {}".format(self.new_result[_app.id].app.name)
+                    "Update detected for: {} ({})".format(self.new_result[key].app.name, _app.filter)
                 )
-                self.logger.info("New data: {}".format(self.new_result[_app.id].data))
-                _is_updated = True
-                _updated_apps.append(self.new_result[_app.id].app)
 
-                self.new_result[_app.id].last_updated = self.timestamp
+                self.logger.info("New data: {}".format(self.new_result[key].data))
+                _is_updated = True
+                _updated_apps.append(self.new_result[key].app)
+
+                self.new_result[key].last_updated = self.timestamp
                 utils.replace_file(self.cache.latest_data, self.cache.old_data)
 
         self.logger.info("Cache filtered data as {}".format(self.cache.result))

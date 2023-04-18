@@ -1,6 +1,6 @@
 # Game Update Notifier
 
-A bot that will let you know via Discord as soon as a new version of your favorite game on Steam, Epic Games, and Microsoft Store are released.
+A bot that will let you know via Discord as soon as a new version of your favorite game on Steam, Epic Games, Microsoft Store, and GOG are released.
 
 This bot tracks actual package updates, instead of updates of any news feeds like blog posts or release notes, so you can be the first to know the release of the new patches.
 
@@ -23,6 +23,7 @@ This bot tracks actual package updates, instead of updates of any news feeds lik
       - [Steam](#steam)
       - [Epic Games](#epic-games)
       - [Microsoft Store](#microsoft-store)
+      - [GOG](#gog)
     - [Prepare Environment Variables (`.env`)](#prepare-environment-variables-env)
     - [Run the Bot](#run-the-bot)
   - [Data Persistence](#data-persistence)
@@ -37,6 +38,7 @@ This bot tracks actual package updates, instead of updates of any news feeds lik
 | ✅ Steam           | ✅ Not required | ✅ Unrestricted               |
 | ✅ Microsoft Store | ✅ Not required | ✅ Unrestricted               |
 | ✅ Epic Games      | ⚠️ Required     | ⚠️ Only products that you own |
+| ✅ GOG             | ✅ Not required | ✅ Unrestricted               |
 
 ### Notification Destination
 
@@ -140,6 +142,20 @@ KEY                             App Id        Market    Name                    
 ```
 
 Keep the value of the `KEY` column (`<App Id>:<Platform>`) of the row of the platform you want to track. This value can be used to prepare `.env` file in later steps.
+
+#### GOG
+Both the **App ID** and **Branch** can be found by searching via product name using the helper script in this repository. The main release branch is usually `null`.
+
+```bash
+$ docker-compose run --rm notifier helper/app_finder.py -p gog -n Kenshi
+KEY                                                      App Id  Name        Branch
+---------------------------------------------------  ----------  ----------  ----------------------------------------
+1193046833:"experimental - latest unstable version"  1193046833  Kenshi      "experimental - latest unstable version"
+1193046833:null                                      1193046833  Kenshi      null
+1409800471:null                                      1409800471  Mahokenshi  null
+```
+
+Keep the value of the `KEY` column (`<App Id>:<Branch>`) of the row of the branch you want to track. This value can be used to prepare `.env` file in later steps.
 
 ### Prepare Environment Variables (`.env`)
 
