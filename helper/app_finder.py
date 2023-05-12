@@ -27,7 +27,9 @@ def gather_steam(id):
         _name = _product_info["apps"][_id]["common"]["name"]
         _updated_time = -1
         if "timeupdated" in _product_info["apps"][_id]["depots"]["branches"][_branch]:
-            _updated_time = _product_info["apps"][_id]["depots"]["branches"][_branch]["timeupdated"]
+            _updated_time = _product_info["apps"][_id]["depots"]["branches"][_branch][
+                "timeupdated"
+            ]
         _row = [
             "{}:{}".format(_id, _branch),
             _id,
@@ -93,6 +95,7 @@ def gather_epicgames():
 
     print(tabulate(_table, _header))
 
+
 def gather_gog_id(id):
     # get name
     _response = requests.get("https://api.gog.com/products/" + str(id))
@@ -100,9 +103,11 @@ def gather_gog_id(id):
     _name = _response.json()["title"]
 
     # get branch info
-    _response = requests.get("https://content-system.gog.com/products/"
+    _response = requests.get(
+        "https://content-system.gog.com/products/"
         + str(id)
-        + "/os/windows/builds?generation=2")
+        + "/os/windows/builds?generation=2"
+    )
     _response.close()
     _product_info = _response.json()
 
@@ -111,7 +116,7 @@ def gather_gog_id(id):
     _branches = []
     for _product in _product_info["items"]:
         _branch = _product["branch"]
-        _branch_str = ("null" if  _branch is None else "\"" + _branch + "\"")
+        _branch_str = "null" if _branch is None else '"' + _branch + '"'
         if not _product["branch"] in _branches:
             _key = str(id) + ":" + _branch_str
             _table.append([_key, id, _name, _branch_str])
@@ -119,11 +124,10 @@ def gather_gog_id(id):
 
     return (_table, _header)
 
+
 def gather_gog_name(name):
     _endpoint = "https://embed.gog.com/games/ajax/filtered"
-    _params = {
-        "search": name
-    }
+    _params = {"search": name}
     _response = requests.get(url=_endpoint, params=_params)
     _response.close()
     _search_matches = _response.json()
@@ -134,7 +138,6 @@ def gather_gog_name(name):
         (_id_table, _keys) = gather_gog_id(_product["id"])
         _table += _id_table
     print(tabulate(_table, _keys))
-
 
 
 def main():
@@ -183,6 +186,7 @@ def main():
         print(tabulate(*gather_gog_id(args.id)))
     elif args.platform == "gog" and args.name is not None:
         gather_gog_name(args.name)
+
 
 if __name__ == "__main__":
     main()

@@ -50,14 +50,14 @@ class Steam:
             if _app_id in self.new_result:
                 # de-JSON
                 self.new_result[_app_id] = Result(
-                        app=App(
-                            id=_app_id,
-                            name=self.new_result[_app_id]["app"]["name"],
-                        ),
-                        data=self.new_result[_app_id]["data"],
-                        last_checked=self.new_result[_app_id]["last_checked"],
-                        last_updated=self.new_result[_app_id]["last_updated"],
-                    )
+                    app=App(
+                        id=_app_id,
+                        name=self.new_result[_app_id]["app"]["name"],
+                    ),
+                    data=self.new_result[_app_id]["data"],
+                    last_checked=self.new_result[_app_id]["last_checked"],
+                    last_updated=self.new_result[_app_id]["last_updated"],
+                )
 
                 # disable ignore_first because we're loading from a cached state
                 self.ignore_first = False
@@ -137,7 +137,9 @@ class Steam:
                 or self.old_result[key].data != self.new_result[key].data
             ):
                 self.logger.info(
-                    "Update detected for: {} ({})".format(self.new_result[key].app.name, _app.filter)
+                    "Update detected for: {} ({})".format(
+                        self.new_result[key].app.name, _app.filter
+                    )
                 )
 
                 self.logger.info("New data: {}".format(self.new_result[key].data))

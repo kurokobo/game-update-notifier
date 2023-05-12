@@ -126,9 +126,8 @@ def main():
             platform="GOG",
             # TODO update this if necessary
             thumb_url=(
-                #"https://github.com/kurokobo/game-update-notifier/raw/main/"
-                #"assets/gog.png"
-
+                # "https://github.com/kurokobo/game-update-notifier/raw/main/"
+                # "assets/gog.png"
                 "https://github.com/BFrizzleFoShizzle/game-update-notifier/raw/main/"
                 "assets/gog.png"
             ),
