@@ -1,18 +1,19 @@
 import copy
 import logging
-from datetime import datetime
 import time
+from datetime import datetime
 
 from gevent import monkey
 
 monkey.patch_all()
 
-import requests
+import json  # noqa: E402
+
+import requests  # noqa: E402
 
 from modules import utils  # noqa: E402
 from modules.models import App, Cache, Result  # noqa: E402
 
-import json
 
 class GOGAppFilter:
     # None = null (default release branch)
@@ -23,7 +24,9 @@ class GOGAppFilter:
     def __str__(self):
         # GOG uses null for main branch
         # null != "null" so we add quotes around strings to avoid confusion
-        return self.id + ":" + ("null" if  self.filter is None else "\"" + self.filter + "\"") 
+        return (
+            self.id + ":" + ("null" if self.filter is None else '"' + self.filter + '"')
+        )
 
 
 class GOG:
@@ -58,14 +61,14 @@ class GOG:
             if _app_id in self.new_result:
                 # de-JSON
                 self.new_result[_app_id] = Result(
-                        app=App(
-                            id=_app_id,
-                            name=self.new_result[_app_id]["app"]["name"],
-                        ),
-                        data=self.new_result[_app_id]["data"],
-                        last_checked=self.new_result[_app_id]["last_checked"],
-                        last_updated=self.new_result[_app_id]["last_updated"],
-                    )
+                    app=App(
+                        id=_app_id,
+                        name=self.new_result[_app_id]["app"]["name"],
+                    ),
+                    data=self.new_result[_app_id]["data"],
+                    last_checked=self.new_result[_app_id]["last_checked"],
+                    last_updated=self.new_result[_app_id]["last_updated"],
+                )
 
                 # disable ignore_first because we're loading from a cached state
                 self.ignore_first = False
@@ -77,25 +80,48 @@ class GOG:
             "Request product information for apps: {}".format([a.id for a in self.apps])
         )
         _product_info = {}
+        _ua = (
+            "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) "
+            "Chrome/22.0.1216.0 Safari/537.2"
+        )
+        _headers = {"User-Agent": _ua}
+
         for a in self.apps:
-            if not a.id in _product_info:
+            if a.id not in _product_info:
                 try:
                     # get game name
-                    _response = requests.get("https://api.gog.com/products/" + str(a.id))
+                    _response = requests.get(
+                        "https://api.gog.com/products/" + str(a.id), headers=_headers
+                    )
                     if _response.status_code != 200:
-                        self.logger.error("GOG api request for " + str(a.id) 
-                            + " returned status code " + str(_response.status_code) + " " + _response.url)
+                        self.logger.error(
+                            "GOG api request for "
+                            + str(a.id)
+                            + " returned status code "
+                            + str(_response.status_code)
+                            + " "
+                            + _response.url
+                        )
                         continue
                     _response.close()
                     _game_name = _response.json()["title"]
 
                     # get branch info
-                    _response = requests.get("https://content-system.gog.com/products/"
+                    _response = requests.get(
+                        "https://content-system.gog.com/products/"
                         + str(a.id)
-                        + "/os/windows/builds?generation=2")
+                        + "/os/windows/builds?generation=2",
+                        headers=_headers,
+                    )
                     if _response.status_code != 200:
-                        self.logger.error("GOG content-system request for " + str(a.id) 
-                            + " returned status code " + str(_response.status_code) + " " + _response.url)
+                        self.logger.error(
+                            "GOG content-system request for "
+                            + str(a.id)
+                            + " returned status code "
+                            + str(_response.status_code)
+                            + " "
+                            + _response.url
+                        )
                         continue
                     _product_info[a.id] = _response.json()
                     _product_info[a.id]["name"] = _game_name
@@ -112,15 +138,22 @@ class GOG:
         _latest_info = {}
 
         for _product in _product_info:
-            # GOG can contain multiple entries for each branch, use the one with the latest timestamp
+            # GOG can contain multiple entries for each branch,
+            # use the one with the latest timestamp
             for _release in _product_info[_product]["items"]:
                 # null != "null" so we add quotes around strings to avoid confusion
-                _branch_key = str(GOGAppFilter(_release["product_id"], _release["branch"]))
+                _branch_key = str(
+                    GOGAppFilter(_release["product_id"], _release["branch"])
+                )
                 # extract timestamp
-                _release["timestamp"] = time.mktime(datetime.strptime(_release["date_published"], "%Y-%m-%dT%H:%M:%S%z").timetuple())
+                _release["timestamp"] = time.mktime(
+                    datetime.strptime(
+                        _release["date_published"], "%Y-%m-%dT%H:%M:%S%z"
+                    ).timetuple()
+                )
                 _release["name"] = _product_info[_product]["name"]
-                if not _branch_key in _latest_info:
-                    _latest_info[_branch_key] = {'timestamp' : -1}
+                if _branch_key not in _latest_info:
+                    _latest_info[_branch_key] = {"timestamp": -1}
                 if _latest_info[_branch_key]["timestamp"] < _release["timestamp"]:
                     _latest_info[_branch_key] = _release
 
@@ -162,7 +195,9 @@ class GOG:
                 or self.old_result[key].data != self.new_result[key].data
             ):
                 self.logger.info(
-                    "Update detected for: {} ({})".format(self.new_result[key].app.name, _app.filter)
+                    "Update detected for: {} ({})".format(
+                        self.new_result[key].app.name, _app.filter
+                    )
                 )
 
                 self.logger.info("New data: {}".format(self.new_result[key].data))
