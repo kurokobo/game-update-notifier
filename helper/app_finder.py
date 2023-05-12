@@ -98,7 +98,14 @@ def gather_epicgames():
 
 def gather_gog_id(id):
     # get name
-    _response = requests.get("https://api.gog.com/products/" + str(id))
+    _ua = (
+        "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) "
+        "Chrome/22.0.1216.0 Safari/537.2"
+    )
+    _headers = {"User-Agent": _ua}
+    _response = requests.get(
+        "https://api.gog.com/products/" + str(id), headers=_headers
+    )
     _response.close()
     _name = _response.json()["title"]
 
@@ -106,7 +113,8 @@ def gather_gog_id(id):
     _response = requests.get(
         "https://content-system.gog.com/products/"
         + str(id)
-        + "/os/windows/builds?generation=2"
+        + "/os/windows/builds?generation=2",
+        headers=_headers,
     )
     _response.close()
     _product_info = _response.json()
@@ -127,8 +135,13 @@ def gather_gog_id(id):
 
 def gather_gog_name(name):
     _endpoint = "https://embed.gog.com/games/ajax/filtered"
+    _ua = (
+        "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) "
+        "Chrome/22.0.1216.0 Safari/537.2"
+    )
+    _headers = {"User-Agent": _ua}
     _params = {"search": name}
-    _response = requests.get(url=_endpoint, params=_params)
+    _response = requests.get(url=_endpoint, headers=_headers, params=_params)
     _response.close()
     _search_matches = _response.json()
 

@@ -80,12 +80,18 @@ class GOG:
             "Request product information for apps: {}".format([a.id for a in self.apps])
         )
         _product_info = {}
+        _ua = (
+            "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.2 (KHTML, like Gecko) "
+            "Chrome/22.0.1216.0 Safari/537.2"
+        )
+        _headers = {"User-Agent": _ua}
+
         for a in self.apps:
             if a.id not in _product_info:
                 try:
                     # get game name
                     _response = requests.get(
-                        "https://api.gog.com/products/" + str(a.id)
+                        "https://api.gog.com/products/" + str(a.id), headers=_headers
                     )
                     if _response.status_code != 200:
                         self.logger.error(
@@ -104,7 +110,8 @@ class GOG:
                     _response = requests.get(
                         "https://content-system.gog.com/products/"
                         + str(a.id)
-                        + "/os/windows/builds?generation=2"
+                        + "/os/windows/builds?generation=2",
+                        headers=_headers,
                     )
                     if _response.status_code != 200:
                         self.logger.error(
