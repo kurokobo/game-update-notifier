@@ -79,7 +79,7 @@ For bundle SKU that include multiple products, obtain the ID of the actual produ
 Get **Branch Name** of the product to track. You can use the helper script in this repository to gather branch name for each product. Usualy `public` is the best branch to track.
 
 ```bash
-$ docker-compose run --rm notifier helper/app_finder.py -p steam -i 753640
+$ docker compose run --rm notifier helper/app_finder.py -p steam -i 753640
 KEY               App Id  Name         Branch      Updated Time
 --------------  --------  -----------  --------  --------------
 753640:public     753640  Outer Wilds  public        1595281461
@@ -96,7 +96,7 @@ Get **Application ID** by using the helper script in this repository.
 First, run the following command and open the indicated URL in your browser. Once authenticated, keep the `sid` displayed and enter the `sid` to the prompt.
 
 ```bash
-$ docker-compose run --rm notifier helper/epicgames_auth.py
+$ docker compose run --rm notifier helper/epicgames_auth.py
 [cli] INFO: Testing existing login data if present...
 Please login via the epic web login!
 If web page did not open automatically, please manually open the following URL: https://www.epicgames.com/id/login?redirectUrl=https://www.epicgames.com/id/api/redirect
@@ -107,7 +107,7 @@ Please enter the "sid" value from the JSON response: 14b8c**********************
 Then run the following command to get the list of the products that you own.
 
 ```bash
-$ docker-compose run --rm notifier helper/app_finder.py -p epicgames
+$ docker compose run --rm notifier helper/app_finder.py -p epicgames
 [Core] INFO: Trying to re-use existing login session...
 KEY                               App Id                            Name                         Build Version
 --------------------------------  --------------------------------  ---------------------------  ------------------
@@ -130,7 +130,7 @@ For bundle SKU that include multiple products, obtain the ID of the actual produ
 Get **Platform Name** of the product to track. You can use the helper script in this repository to gather platform name for each product. Usualy `Windows.Desktop` or `Windows.Universal` is the best platform to track.
 
 ```bash
-$ docker-compose run --rm notifier helper/app_finder.py -p msstore -m JP -i 9nblggh2jhxj
+$ docker compose run --rm notifier helper/app_finder.py -p msstore -m JP -i 9nblggh2jhxj
 KEY                             App Id        Market    Name                      Platform           Package Id
 ------------------------------  ------------  --------  ------------------------  -----------------  ----------------------------------------
 9nblggh2jhxj:Windows.Xbox       9nblggh2jhxj  JP        Minecraft for Windows 10  Windows.Xbox       845277e2-565d-741e-3c91-a883a873d4be-Arm
@@ -144,10 +144,11 @@ KEY                             App Id        Market    Name                    
 Keep the value of the `KEY` column (`<App Id>:<Platform>`) of the row of the platform you want to track. This value can be used to prepare `.env` file in later steps.
 
 #### GOG
+
 Both the **App ID** and **Branch** can be found by searching via product name using the helper script in this repository. The main release branch is usually `null`.
 
 ```bash
-$ docker-compose run --rm notifier helper/app_finder.py -p gog -n Kenshi
+$ docker compose run --rm notifier helper/app_finder.py -p gog -n Kenshi
 KEY                                                      App Id  Name        Branch
 ---------------------------------------------------  ----------  ----------  ----------------------------------------
 1193046833:"experimental - latest unstable version"  1193046833  Kenshi      "experimental - latest unstable version"
@@ -168,7 +169,7 @@ If you want to track the products on Epic Games, first store the credential in t
 Run the following command and open the indicated URL in your browser. Once authenticated, keep the `sid` displayed and enter the `sid` to the prompt.
 
 ```bash
-$ docker-compose run --rm notifier helper/epicgames_auth.py
+$ docker compose run --rm notifier helper/epicgames_auth.py
 [cli] INFO: Testing existing login data if present...
 Please login via the epic web login!
 If web page did not open automatically, please manually open the following URL: https://www.epicgames.com/id/login?redirectUrl=https://www.epicgames.com/id/api/redirect
@@ -179,7 +180,7 @@ Please enter the "sid" value from the JSON response: 14b8c**********************
 Once everything goes good, simply start the Bot by following command.
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Data Persistence
