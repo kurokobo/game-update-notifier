@@ -124,12 +124,8 @@ def main():
             role_ids=DISCORD_MENTION_ROLE_IDS,
             user_ids=DISCORD_MENTION_USER_IDS,
             platform="GOG",
-            # TODO update this if necessary
             thumb_url=(
-                # "https://github.com/kurokobo/game-update-notifier/raw/main/"
-                # "assets/gog.png"
-                "https://github.com/BFrizzleFoShizzle/game-update-notifier/raw/main/"
-                "assets/gog.png"
+                "https://github.com/kurokobo/game-update-notifier/raw/main/assets/gog.png"
             ),
             embed_color="c62ee8",
         )
