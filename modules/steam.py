@@ -98,28 +98,33 @@ class Steam:
 
         self.old_result = copy.copy(self.new_result)
         for _app in self.apps:
-            key = _app.id + ":" + _app.filter
-            self.logger.info(
-                "Gather updated data from raw data for {} in branch: {}".format(
-                    _app.id, _app.filter
+            try:
+                key = _app.id + ":" + _app.filter
+                self.logger.info(
+                    "Gather updated data from raw data for {} in branch: {}".format(
+                        _app.id, _app.filter
+                    )
                 )
-            )
 
-            _last_updated = None
-            if self.old_result and key in self.old_result:
-                _last_updated = self.old_result[key].last_updated
-            key = _app.id + ":" + _app.filter
-            self.new_result[key] = Result(
-                app=App(
-                    id=key,
-                    name=_product_info["apps"][int(_app.id)]["common"]["name"],
-                ),
-                data=_product_info["apps"][int(_app.id)]["depots"]["branches"][
-                    _app.filter
-                ]["timeupdated"],
-                last_checked=self.timestamp,
-                last_updated=_last_updated,
-            )
+                _last_updated = None
+                if self.old_result and key in self.old_result:
+                    _last_updated = self.old_result[key].last_updated
+                key = _app.id + ":" + _app.filter
+                self.new_result[key] = Result(
+                    app=App(
+                        id=key,
+                        name=_product_info["apps"][int(_app.id)]["common"]["name"],
+                    ),
+                    data=_product_info["apps"][int(_app.id)]["depots"]["branches"][
+                        _app.filter
+                    ]["timeupdated"],
+                    last_checked=self.timestamp,
+                    last_updated=_last_updated,
+                )
+            except:
+                self.logger.warn(f"Removing: {_app.id}")
+                self.apps.remove(_app)
+                continue
 
         return
 
@@ -130,24 +135,28 @@ class Steam:
         _updated_apps = []
 
         for _app in self.apps:
-            key = _app.id + ":" + _app.filter
-            if (
-                self.old_result is {}
-                or key not in self.old_result
-                or self.old_result[key].data != self.new_result[key].data
-            ):
-                self.logger.info(
-                    "Update detected for: {} ({})".format(
-                        self.new_result[key].app.name, _app.filter
+            try:
+                key = _app.id + ":" + _app.filter
+                if (
+                    self.old_result is {}
+                    or key not in self.old_result
+                    or self.old_result[key].data != self.new_result[key].data
+                ):
+                    self.logger.info(
+                        "Update detected for: {} ({})".format(
+                            self.new_result[key].app.name, _app.filter
+                        )
                     )
-                )
 
-                self.logger.info("New data: {}".format(self.new_result[key].data))
-                _is_updated = True
-                _updated_apps.append(self.new_result[key].app)
+                    self.logger.info("New data: {}".format(self.new_result[key].data))
+                    _is_updated = True
+                    _updated_apps.append(self.new_result[key].app)
 
-                self.new_result[key].last_updated = self.timestamp
-                utils.replace_file(self.cache.latest_data, self.cache.old_data)
+                    self.new_result[key].last_updated = self.timestamp
+                    utils.replace_file(self.cache.latest_data, self.cache.old_data)
+            except:
+                self.logger.warn(".. ez miért")
+                continue
 
         self.logger.info("Cache filtered data as {}".format(self.cache.result))
         utils.save_dict_as_json(self.new_result, self.cache.result)

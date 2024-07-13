@@ -42,7 +42,7 @@ class Discord:
             )
 
         _embed_fields = []
-        _embeds = []
+        _embed_fields.append({'name':"🕑 Checked at", 'value':timestamp.strftime(f"%Y/%m/%d %H:%M:%S")})
         while _apps:
             idx = _apps.rfind("\n", 0, 1024)
             if idx != -1:
@@ -53,27 +53,25 @@ class Discord:
                 chunk = _apps[:1024]
                 _embed_fields.append({'name': "🎮 Updated Games", 'value': chunk})
                 _apps = _apps[1024:]
-
-        _first_embed = self.create_template_embed(description=_description)
-        _first_embed.add_embed_field(
-            name="🕑 Checked at", value=timestamp.strftime(f"%Y/%m/%d %H:%M:%S")
-        )
-        if len(_embed_fields) > 24:
-            # add 24 embeds to _first_embed, add the rest to new embeds.
-            for i in range(0, 24):
-                _first_embed.add_embed_field(name=_embed_fields[i]['name'], value=_embed_fields[i]['value'], inline=False)
-            _embeds.append(_first_embed)
-            _embed_fields = _embed_fields[24:]
-            for i in range(0, len(_embed_fields), 25):
-                _embed = self.create_template_embed(description=_description)
-                for k in range(i, i+25):
-                    if len(_embed_fields)<k+1: break
-                    _embed.add_embed_field(name=_embed_fields[k]['name'], value=_embed_fields[k]['value'], inline=False)
-                _embeds.append(_embed)
-        else:
-            for i in range(0, len(_embed_fields)):
-                _first_embed.add_embed_field(name=_embed_fields[i]['name'], value=_embed_fields[i]['value'], inline=False)
-            _embeds.append(_first_embed)
+        _embeds = []
+        chunks = []
+        current_chunk = []
+        current_char_count = 256 + len("Notified by Game Update Notifier") + len("🚨 UPDATES ARE COMING") + len(_description)
+        for field in _embed_fields:
+            field_char_count = len(field['name']) + len(field['value'])
+            if current_char_count + field_char_count > 6000 or len(current_chunk) == 25:
+                chunks.append(current_chunk)
+                current_chunk = []
+                current_char_count = 256 + len("Notified by Game Update Notifier") + len("🚨 UPDATES ARE COMING") + len(_description)
+            current_chunk.append({'name': field['name'], 'value': field['value']})
+            current_char_count += field_char_count
+        if current_chunk:
+            chunks.append(current_chunk)
+        for i, chunk in enumerate(chunks):
+            _embed = self.create_template_embed(_description)
+            for c in chunk:
+                _embed.add_embed_field(name=c['name'], value=c['value'], inline=False)
+            _embeds.append(_embed)
         return _embeds
 
     def fire(self, updated_apps, timestamp):
@@ -82,10 +80,14 @@ class Discord:
 
         self.logger.info("Construct embed message(s)")
         _embeds = self.create_embed_message(updated_apps, timestamp)
-
-        for i in range(0, len(_embeds), 10):
+        #talán 6000 karakter/üzi és nem 6000 karakter/embed ??
+        '''for i in range(0, len(_embeds), 10):
             _webhook = DiscordWebhook(url=self.webhook_url)
             for k in range(i, i+10):
                 if len(_embeds)<k+1: break
                 _webhook.add_embed(_embeds[k])
+            _webhook.execute()'''
+        for embed in _embeds:
+            _webhook = DiscordWebhook(url=self.webhook_url)
+            _webhook.add_embed(embed)
             _webhook.execute()
