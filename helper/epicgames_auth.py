@@ -7,6 +7,7 @@ def main():
         "import_egs_auth": None,
         "auth_code": None,
         "session_id": None,
+        "ex_token": None,
         "auth_delete": None,
     }
     _args = type("dummy", (object,), _args)
