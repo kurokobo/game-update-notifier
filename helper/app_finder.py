@@ -1,9 +1,5 @@
 import argparse
 
-from gevent import monkey
-
-monkey.patch_all()
-
 import ms_cv  # noqa: E402
 import requests  # noqa: E402
 from legendary.cli import LegendaryCLI  # noqa: E402

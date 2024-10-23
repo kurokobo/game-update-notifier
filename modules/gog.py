@@ -3,10 +3,6 @@ import logging
 import time
 from datetime import datetime
 
-from gevent import monkey
-
-monkey.patch_all()
-
 import json  # noqa: E402
 
 import requests  # noqa: E402

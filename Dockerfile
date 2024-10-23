@@ -1,4 +1,4 @@
-FROM python:3.9.2-slim
+FROM python:3.13-slim
 
 RUN groupadd -r bot && \
     useradd -r -m -d /app -g bot bot && \

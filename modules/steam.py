@@ -2,11 +2,8 @@ import copy
 import logging
 from datetime import datetime
 
-from gevent import monkey
 from steam.client import SteamClient
 from steam.enums import EResult
-
-monkey.patch_all()
 
 from modules import utils  # noqa: E402
 from modules.models import App, Cache, Result  # noqa: E402
